@@ -1,0 +1,144 @@
+disabled_rules:
+opt_in_rules:
+  - accessibility_label_for_image
+  - accessibility_trait_for_button
+  - discarded_notification_center_observer
+  - async_without_await
+  - attributes
+  - balanced_xctest_lifecycle
+  - closure_body_length
+  - closure_end_indentation
+  - closure_spacing
+  - collection_alignment
+  - comma_inheritance
+  - contains_over_filter_count
+  - contains_over_filter_is_empty
+  - contains_over_first_not_nil
+  - contains_over_range_nil_comparison
+  - convenience_type
+  - direct_return
+  - discouraged_assert
+  - discouraged_none_name
+  - discouraged_optional_boolean
+  - discouraged_optional_collection
+  - empty_collection_literal
+  - empty_count
+  - empty_string
+  - empty_xctest_method
+  - enum_case_associated_values_count
+  - explicit_enum_raw_value
+  - explicit_top_level_acl
+  - extension_access_modifier
+  - fallthrough
+  - file_name
+  - file_name_no_space
+  - final_test_case
+  - first_where
+  - flatmap_over_map_reduce
+  - force_unwrapping
+  - ibinspectable_in_extension
+  - identical_operands
+  - implicit_return
+  - implicit_unwrapped_optional
+  - indentation_width
+  - joined_default_parameter
+  - last_where
+  - legacy_multiple
+  - legacy_objc_type
+  - let_var_whitespace
+  - literal_expression_end_indentation
+  - local_doc_comment
+  - lower_acl_than_parent
+  - missing_docs
+  - modifier_order
+  - multiline_arguments_brackets
+  - multiline_function_chains
+  - multiline_literal_brackets
+  - multiline_parameters_brackets
+  - no_magic_numbers
+  - non_overridable_class_declaration
+  - nslocalizedstring_key
+  - nslocalizedstring_require_bundle
+  - number_separator
+  - object_literal
+  - operator_usage_whitespace
+  - optional_enum_case_matching
+  - overridden_super_call
+  - override_in_extension
+  - pattern_matching_keywords
+  - period_spacing
+  - prefer_key_path
+  - prefer_self_in_static_references
+  - prefer_self_type_over_type_of_self
+  - prefer_zero_over_explicit_init
+  - private_action
+  - private_outlet
+  - private_swiftui_state
+  - prohibited_interface_builder
+  - prohibited_super_call
+  - raw_value_for_camel_cased_codable_enum
+  - reduce_into
+  - redundant_nil_coalescing
+  - redundant_self_in_closure
+  - redundant_type_annotation
+  - required_deinit
+  - return_value_from_void_function
+  - shorthand_optional_binding
+  - single_test_class
+  - sorted_enum_cases
+  - sorted_first_last
+  - sorted_imports
+  - static_operator
+  - strong_iboutlet
+  - superfluous_else
+  - test_case_accessibility
+  - toggle_bool
+  - trailing_closure
+  - type_contents_order
+  - unavailable_function
+  - unhandled_throwing_task
+  - unneeded_parentheses_in_closure_argument
+  - unowned_variable_capture
+  - untyped_error_in_catch
+  - unused_parameter
+  - vertical_parameter_alignment_on_call
+  - vertical_whitespace_closing_braces
+  - vertical_whitespace_opening_braces
+  - weak_delegate
+  - xct_specific_matcher
+  - yoda_condition
+analyzer_rules:
+  - capture_variable
+  - typesafe_array_init
+  - unused_declaration
+  - unused_import
+closure_body_length:
+  warning: 15
+  error: 25
+enum_case_associated_values_count:
+  warning: 3
+  error: 5
+file_length:
+  warning: 200
+  error: 300
+function_body_length:
+  warning: 20
+  error: 40
+identifier_name:
+  min_length:
+    warning: 1
+    error: 0
+large_tuple:
+  warning: 4
+  error: 5
+line_length:
+  ignores_comments: true
+  ignores_urls: true
+  ignores_interpolated_strings: true
+missing_docs:
+  excludes_inherited_types: false
+switch_case_alignment:
+  indented_cases: true
+  ignore_one_liners: true
+type_contents_order:
+  order: [[type_alias, associated_type], [subtype], [case], [ib_inspectable], [ib_outlet], [type_property], [instance_property], [subscript], [initializer], [deinitializer], [view_life_cycle_method], [ib_action, ib_segue_action], [other_method], [type_method]]
