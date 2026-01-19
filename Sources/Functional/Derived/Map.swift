@@ -1,8 +1,8 @@
 //
 //  Map.swift
-//  Core
+//  Minimal
 //
 //  Created by Martônio Júnior on 21/01/25.
 //
 
-public typealias Map<T> = (T) -> T
+public typealias Map<T> = Closure<T, T, Never>
