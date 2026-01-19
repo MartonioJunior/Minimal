@@ -21,3 +21,4 @@ public let noop: Void = ()
 
 // MARK: None
 public func none() {}
+public func none<each T>(_: repeat (each T)) {}
