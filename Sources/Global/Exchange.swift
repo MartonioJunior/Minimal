@@ -7,11 +7,11 @@
 
 // MARK: Exchange
 public func exchange<T: ~Copyable>(
-    _ prop: inout T,
+    _ item: inout T,
     with value: consuming T,
-    condition: (borrowing T, borrowing T) -> Bool
+    when condition: (borrowing T, borrowing T) -> Bool
 ) -> T {
-    if condition(prop, value) { return value }
+    if condition(item, value) { return value }
 
-    return exchange(&prop, with: value)
+    return exchange(&item, with: value)
 }
