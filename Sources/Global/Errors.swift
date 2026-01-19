@@ -53,3 +53,33 @@ public func unthrow<each A, B, E: Error>(
         }
     }
 }
+
+public func unthrowAny<A, E: Error>(
+    as _: E.Type,
+    _ function: @escaping () throws -> A
+) -> () -> Result<A?, E> {
+    {
+        do {
+            return .success(try function())
+        } catch let error as E {
+            return .failure(error)
+        } catch {
+            return .success(nil)
+        }
+    }
+}
+
+public func unthrowAny<each A, B, E: Error>(
+    as _: E.Type,
+    _ function: @escaping (repeat each A) throws -> B
+) -> (repeat each A) -> Result<B?, E> {
+    { (arguments: repeat each A) in
+        do {
+            return .success(try function(repeat (each arguments)))
+        } catch let error as E {
+            return .failure(error)
+        } catch {
+            return .success(nil)
+        }
+    }
+}
