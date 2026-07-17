@@ -65,7 +65,7 @@ var targets: [Target] = [
     ),
     .target(
         name: "Operators",
-        dependencies: [overture],
+        dependencies: ["Functional", overture],
         swiftSettings: .upcomingFeatures
     )
 ]
