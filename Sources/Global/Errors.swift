@@ -5,6 +5,8 @@
 //  Created by Martônio Júnior on 25/07/2025.
 //
 
+import Overture
+
 // MARK: Throwing
 public func throwing<each A, B, E: Error>(
     _ function: @escaping (repeat each A) -> Result<B, E>
@@ -18,68 +20,36 @@ public func throwing<each A, B, E1: Error, E2: Error>(
     _ function: @escaping (repeat each A) throws(E1) -> B,
     map: @escaping (E1) -> E2
 ) -> (repeat each A) throws(E2) -> B {
-    let resultFunction = unthrow(function)
-
-    return { (arguments: repeat each A) in
-        try resultFunction(repeat (each arguments)).mapError(map).get()
-    }
-}
-
-// MARK: Unthrow
-public func unthrow<A, E: Error>(
-    _ function: @escaping () throws(E) -> A
-) -> () -> Result<A, E> {
-    {
-        do {
-            return .success(try function())
-        } catch let error as E {
-            return .failure(error)
-        } catch {
-            fatalError()
-        }
-    }
-}
-
-public func unthrow<each A, B, E: Error>(
-    _ function: @escaping (repeat each A) throws(E) -> B
-) -> (repeat each A) -> Result<B, E> {
     { (arguments: repeat each A) in
-        do {
-            return .success(try function(repeat (each arguments)))
-        } catch let error as E {
-            return .failure(error)
-        } catch {
-            fatalError()
-        }
+        try Result(repeat (each arguments), catching: function).mapError(map).get()
     }
 }
 
-public func unthrowAny<A, E: Error>(
-    as _: E.Type,
-    _ function: @escaping () throws -> A
-) -> () -> Result<A?, E> {
-    {
+// MARK: Result (EX)
+public extension Result {
+    /// Creates a new result based on the combination of a value with a throwing closure.
+    /// - Parameters:
+    ///   - value: Value passed in as function arguments.
+    ///   - body: A potentially throwing closure to evaluate.
+    init<each T>(
+        _ value: repeat each T,
+        catching body: (repeat each T) throws(Failure) -> Success
+    ) {
         do {
-            return .success(try function())
-        } catch let error as E {
-            return .failure(error)
-        } catch {
-            return .success(nil)
+            self = .success(try body(repeat (each value)))
+        } catch let error as Failure {
+            self = .failure(error)
         }
     }
-}
-
-public func unthrowAny<each A, B, E: Error>(
-    as _: E.Type,
-    _ function: @escaping (repeat each A) throws -> B
-) -> (repeat each A) -> Result<B?, E> {
-    { (arguments: repeat each A) in
+    /// Attempts to cast an existential error into a typed one.
+    /// - Returns: Result when it's able to cast the error successfully, `nil` otherwise.
+    func compactMapError<E: Error>(as _: E.Type) -> Result<Success, E>? where Failure == any Error {
         do {
-            return .success(try function(repeat (each arguments)))
+            return .success(try get())
         } catch let error as E {
             return .failure(error)
         } catch {
-            return .success(nil)
+            return nil
         }
     }
 }
