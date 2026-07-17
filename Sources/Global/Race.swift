@@ -5,6 +5,10 @@
 //  Created by Martônio Júnior on 25/04/2025.
 //
 
+/// Dispatches multiple tasks at once, returning whichever value comes first.
+/// - Parameters:
+///   - first: First task to send.
+///   - next: Alternative tasks that return the same value.
 @available(macOS 10.15, *)
 public func race<T: Sendable>(
     _ first: @Sendable @escaping () async throws -> T,

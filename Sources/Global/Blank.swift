@@ -13,7 +13,8 @@ extension Blank: Codable {}
 
 // MARK: Self: Comparable
 extension Blank: Comparable {
-    public static func < (lhs: Blank, rhs: Blank) -> Bool { false }
+    // swiftlint:disable:next missing_docs
+    public static func < (_: Blank, _: Blank) -> Bool { false }
 }
 
 // MARK: Self: Equatable
@@ -21,7 +22,8 @@ extension Blank: Equatable {}
 
 // MARK: Self: ExpressibleByNilLiteral
 extension Blank: ExpressibleByNilLiteral {
-    public init(nilLiteral: ()) {}
+    // swiftlint:disable:next missing_docs
+    public init(nilLiteral _: ()) {}
 }
 
 // MARK: Self: Hashable
