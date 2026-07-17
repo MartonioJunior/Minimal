@@ -55,6 +55,10 @@ let dependencies = [
 // MARK: - Targets
 var targets: [Target] = [
     .target(
+        name: "Either",
+        swiftSettings: .upcomingFeatures
+    ),
+    .target(
         name: "Functional",
         dependencies: [overture],
         swiftSettings: .upcomingFeatures
