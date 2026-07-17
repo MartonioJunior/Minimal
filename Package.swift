@@ -69,7 +69,7 @@ var targets: [Target] = [
     ),
     .target(
         name: "Operators",
-        dependencies: ["Functional", overture],
+        dependencies: ["Either", "Functional", overture],
         swiftSettings: .upcomingFeatures
     )
 ]
