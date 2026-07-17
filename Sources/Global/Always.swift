@@ -20,10 +20,8 @@ public func alwaysSendable<each Input: Sendable, Output: Sendable>(
 ) -> @Sendable (repeat each Input) -> Output {
     { (_: repeat each Input) in value() }
 }
-
 // MARK: Noop
-public let noop: Void = ()
-
-// MARK: None
-public func none() {}
-public func none<each T>(_: repeat (each T)) {}
+/// Gap method that can be used to plug into closure parameters that do nothing.
+public func noop() {}
+/// Gap method that can be used to plug into closure parameters that do nothing.
+public func noop<each Input>(_: repeat (each Input)) {}
