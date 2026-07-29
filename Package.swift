@@ -75,6 +75,11 @@ var targets: [Target] = [
     .target(
         name: "Pair",
         swiftSettings: .upcomingFeatures
+    ),
+    .target(
+        name: "Tuple",
+        dependencies: ["Global"],
+        swiftSettings: .upcomingFeatures + [.enableExperimentalFeature("BuiltinModule")]
     )
 ]
 
