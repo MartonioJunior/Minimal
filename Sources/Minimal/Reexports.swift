@@ -8,3 +8,4 @@
 @_exported import Functional
 @_exported import Global
 @_exported import Operators
+@_exported import Pair
