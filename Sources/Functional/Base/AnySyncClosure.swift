@@ -6,70 +6,51 @@
 //
 
 import Foundation
-
+/// Short-hand alias for an erased sync closure.
 public typealias ErasedSyncClosure<C: SyncClosure> = AnySyncClosure<C.Input, C.Output, C.Error>
-
+/// Type-erased synchronous closure.
 public struct AnySyncClosure<Input, Output, E: Error> {
     // MARK: Variables
-    public let raw: (Input) throws(E) -> Output
-
-    var async: ErasedClosure<Self> { .init(raw) }
-
+    /// Closure to be executed.
+    public let f: (Input) throws(E) -> Output
+    /// Turns the sync closure into an async one.
+    public var async: ErasedClosure<Self> { .init(f) }
     // MARK: Initializers
-    public init(_ raw: @escaping (Input) throws(E) -> Output) {
-        self.raw = raw
+    /// Wraps a given function as a closure.
+    /// - Parameter f: Function to be executed.
+    public init(_ f: @escaping (Input) throws(E) -> Output) {
+        self.f = f
     }
-
+    /// Erases a given closure.
+    /// - Parameter closure: Closure.
     public init<C: SyncClosure>(_ closure: C) where Input == C.Input, Output == C.Output, E == C.Error {
-        self.raw = closure.run
-    }
-
-    // MARK: Methods
-    func erased() -> ErasedSyncClosure<Self> { self }
-
-    func erased<C: SyncClosure>(_ wrapper: (@escaping (Input) throws(Error) -> Output) -> C) -> C {
-        wrapper(raw)
-    }
-}
-
-// MARK: DotSyntax
-public extension SyncClosure {
-    static func composing<S: Sequence, T, I, O, E>(
-        _ elements: S,
-        evaluate: @escaping (I, S.Element) -> T,
-        compose: @escaping (S, (S.Element) -> T) throws(E) -> O
-    ) -> Self where Self == AnySyncClosure<I, O, E> {
-        let f: (I) throws(E) -> O = { input in
-            try compose(elements) { evaluate(input, $0) }
-        }
-
-        return .init(f)
+        self.f = closure.run
     }
 }
 
 // MARK: Self: SyncClosure
 extension AnySyncClosure: SyncClosure {
+    // swiftlint:disable:next missing_docs
     public func run(_ input: Input) throws(E) -> Output {
-        try raw(input)
+        try f(input)
     }
 }
 
 // MARK: SyncClosure (EX)
 public extension SyncClosure {
-    func erased() -> ErasedSyncClosure<Self> { .init(self) }
-
-    func erased<C: SyncClosure>(_ wrapper: (@escaping (Input) throws(Error) -> Output) -> C) -> C {
-        wrapper(run)
-    }
-
-    func pipe<T>(
+    /// Maps a closure to a sync function.
+    /// - Parameter transform: Transforms the output of the closure.
+    /// - Returns: `AnySyncClosure` that combines the two functions.
+    func map<T>(
         _ transform: @escaping (Output) throws(Error) -> T
     ) -> AnySyncClosure<Input, T, Error> {
         let f: (Input) throws(Error) -> T = { try transform(run($0)) }
 
         return .init(f)
     }
-
+    /// Pullbacks a closure via a sync function.
+    /// - Parameter transform: Transforms an input to the closure's input.
+    /// - Returns: `AnySyncClosure` that combines the two functions.
     func pullback<T>(
         _: T.Type = T.self,
         _ transform: @escaping (T) throws(Error) -> Input

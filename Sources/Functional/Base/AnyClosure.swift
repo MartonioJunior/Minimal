@@ -6,74 +6,49 @@
 //
 
 import Foundation
-
+/// Short-hand alias for an erased closure.
 public typealias ErasedClosure<C: Closure> = AnyClosure<C.Input, C.Output, C.Error>
-
+/// Type-erased closure.
 public struct AnyClosure<Input, Output, E: Error> {
     // MARK: Variables
-    public let raw: (Input) async throws(E) -> Output
-
+    /// Closure to be executed.
+    public let f: (Input) async throws(E) -> Output
     // MARK: Initializers
-    public init(_ raw: @escaping (Input) async throws(E) -> Output) {
-        self.raw = raw
+    /// Wraps a given function as a closure.
+    /// - Parameter f: Function to be executed.
+    public init(_ f: @escaping (Input) async throws(E) -> Output) {
+        self.f = f
     }
-
-    public init<C: Closure>(_ closure: C) where Input == C.Input, Output == C.Output, E == C.Error {
-        self.raw = closure.callAsFunction
-    }
-
-    // MARK: Methods
-    public func erasedAsync() -> ErasedClosure<Self> { self }
-
-    public func erasedAsyncMap<C: Closure>(_ wrapper: (@escaping (Input) async throws(Error) -> Output) -> C) -> C {
-        wrapper(raw)
-    }
-}
-
-// MARK: DotSyntax
-public extension Closure {
-    static func composing<S: Sequence, T, I, O, E>(
-        _ elements: S,
-        evaluate: @escaping (I, S.Element) -> T,
-        compose: @escaping (S, (S.Element) -> T) async throws(E) -> O
-    ) -> Self where Self == AnyClosure<I, O, E> {
-        let f: (I) async throws(E) -> O = { input in
-            try await compose(elements) { evaluate(input, $0) }
-        }
-
-        return .init(f)
-    }
-
-    static func sync<I, O, E>(
-        _ f: @escaping (I) throws(E) -> O
-    ) -> Self where Self == AnyClosure<I, O, E> {
-        .init(f)
+    /// Erases a given closure.
+    /// - Parameter closure: Closure.
+    public init(_ closure: some Closure<Input, Output, E>) {
+        self.f = closure.run
     }
 }
 
 // MARK: Self: Closure
 extension AnyClosure: Closure {
+    // swiftlint:disable:next missing_docs
     public func run(_ input: Input) async throws(E) -> Output {
-        try await raw(input)
+        try await f(input)
     }
 }
 
 // MARK: Closure (EX)
 public extension Closure {
-    func erasedAsync() -> ErasedClosure<Self> { .init(self) }
-
-    func erasedAsyncMap<C: Closure>(_ wrapper: (@escaping (Input) async throws(Error) -> Output) -> C) -> C {
-        wrapper(run)
-    }
-
-    func pipeAsync<T>(
+    /// Maps a closure to an async function.
+    /// - Parameter transform: Transforms the output of the closure.
+    /// - Returns: `AnyClosure` that combines the two functions.
+    func mapAsync<T>(
         _ transform: @escaping (Output) async throws(Error) -> T,
     ) -> AnyClosure<Input, T, Error> {
         let f: (Input) async throws(Error) -> T = { try await transform(run($0)) }
 
         return .init(f)
     }
-
+    /// Pullbacks a closure via an async function.
+    /// - Parameter transform: Transforms an input to the closure's input.
+    /// - Returns: `AnyClosure` that combines the two functions.
     func pullbackAsync<T>(
         _: T.Type = T.self,
         _ transform: @escaping (T) async throws(Error) -> Input

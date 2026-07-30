@@ -6,66 +6,39 @@
 //
 
 import Foundation
-
+/// Short-hand alias for an erased sendable closure.
 public typealias ErasedSendableClosure<C: Closure> = AnySendableClosure<C.Input, C.Output, C.Error>
-
+/// Type-erased Sendable closure.
 public struct AnySendableClosure<Input, Output, E: Error> {
     // MARK: Variables
-    public let raw: @Sendable (Input) async throws(E) -> Output
-
+    /// Closure to be executed.
+    public let f: @Sendable (Input) async throws(E) -> Output
     // MARK: Initializers
-    public init(_ raw: @escaping @Sendable (Input) async throws(E) -> Output) {
-        self.raw = raw
+    /// Wraps a given function as a closure.
+    /// - Parameter f: Function to be executed.
+    public init(_ f: @escaping @Sendable (Input) async throws(E) -> Output) {
+        self.f = f
     }
-
+    /// Erases a given closure.
+    /// - Parameter closure: Closure.
     public init<C: Closure & Sendable>(_ closure: C) where Input == C.Input, Output == C.Output, E == C.Error {
-        self.raw = closure.run
-    }
-
-    // MARK: Methods
-    public func erasedAsync() -> ErasedSendableClosure<Self> { self }
-
-    public func erasedAsyncMap<C: Closure>(_ wrapper: (@escaping (Input) async throws(Error) -> Output) -> C) -> C {
-        wrapper(raw)
-    }
-}
-
-// MARK: DotSyntax
-public extension Closure {
-    static func composing<S: Sequence & Sendable, T, I, O, E>(
-        _ elements: S,
-        evaluate: @escaping @Sendable (I, S.Element) -> T,
-        compose: @escaping @Sendable (S, (S.Element) -> T) async throws(E) -> O
-    ) -> Self where Self == AnySendableClosure<I, O, E> {
-        let f: @Sendable (I) async throws(E) -> O = { input in
-            try await compose(elements) { evaluate(input, $0) }
-        }
-
-        return .init(f)
-    }
-
-    static func sync<I, O, E>(
-        _ f: @escaping @Sendable (I) throws(E) -> O
-    ) -> Self where Self == AnySendableClosure<I, O, E> {
-        .init(f)
+        self.f = closure.run
     }
 }
 
 // MARK: Self: Closure
 extension AnySendableClosure: Closure {
+    // swiftlint:disable:next missing_docs
     public func run(_ input: Input) async throws(E) -> Output {
-        try await raw(input)
+        try await f(input)
     }
 }
 
 // MARK: Closure (EX)
 public extension Closure where Self: Sendable {
-    func erasedAsync() -> ErasedSendableClosure<Self> { .init(self.run) }
-
-    func erasedAsyncMap<C: Closure>(_ wrapper: (@escaping (Input) async throws(Error) -> Output) -> C) -> C {
-        wrapper(run)
-    }
-
+    /// Maps a closure to an async function.
+    /// - Parameter transform: Transforms the output of the closure.
+    /// - Returns: `AnySendableClosure` that combines the two functions.
     func pipeAsync<T>(
         _ transform: @escaping @Sendable (Output) async throws(Error) -> T,
     ) -> AnySendableClosure<Input, T, Error> {
@@ -73,7 +46,9 @@ public extension Closure where Self: Sendable {
 
         return .init(f)
     }
-
+    /// Pullbacks a closure via an async function.
+    /// - Parameter transform: Transforms an input to the closure's input.
+    /// - Returns: `AnySendableClosure` that combines the two functions.
     func pullbackAsync<T>(
         _: T.Type = T.self,
         _ transform: @escaping @Sendable (T) async throws(Error) -> Input

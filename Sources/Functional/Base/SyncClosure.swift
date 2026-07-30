@@ -5,23 +5,42 @@
 //  Created by Martônio Júnior on 31/12/2025.
 //
 
+/// Describes a closure that is run synchronously.
 public protocol SyncClosure<Input, Output, Error>: Closure {
+    /// Executes the closure.
+    /// - Parameter input: Input of the closure.
+    /// - Throws: Error for the closure.
+    /// - Returns: Output of the closure.
     func run(_ input: Input) throws(Error) -> Output
 }
 
 // MARK: Default Implementation
 public extension SyncClosure {
+    /// Executes the closure.
+    /// - Parameter input: Input of the closure.
+    /// - Throws: Error for the closure.
+    /// - Returns: Output of the closure.
+    @inlinable
     func callAsFunction(_ input: Input) throws(Error) -> Output {
         try run(input)
     }
-
+    /// Executes the closure.
+    /// - Parameter input: Inputs of the closure.
+    /// - Throws: Error for the closure.
+    /// - Returns: Output of the closure.
+    @inlinable
     func callAsFunction<each Inputs>(
         _ inputs: repeat each Inputs
     ) throws(Error) -> Output where Input == (repeat each Inputs) {
         let args = (repeat each inputs)
         return try callAsFunction(args)
     }
-
+    /// Executes the closure with a completion.
+    /// - Parameters:
+    ///   - input: Input of the closure.
+    ///   - completion: Completion executed when the closure is run successfully.
+    /// - Throws: Error for the closure.
+    /// - Returns: Output of the closure.
     func callAsFunction(
         _ input: Input,
         completion: (Output) -> Void
@@ -29,21 +48,5 @@ public extension SyncClosure {
         let output = try callAsFunction(input)
         completion(output)
         return output
-    }
-
-    @_disfavoredOverload
-    func sample(_ inputs: some Sequence<Input>) -> [(Input, Result<Output, Error>)] {
-        inputs.map {
-            do {
-                let output = try run($0)
-                return ($0, .success(output))
-            } catch let error as Error {
-                return ($0, .failure(error))
-            } catch { fatalError("Unreachable state!") }
-        }
-    }
-
-    func sample(_ inputs: some Sequence<Input>) -> [(Input, Output)] where Error == Never {
-        inputs.map { ($0, run($0)) }
     }
 }
