@@ -11,7 +11,7 @@ public func exchange<T: ~Copyable>(
     with value: consuming T,
     when condition: (borrowing T, borrowing T) -> Bool
 ) -> T {
-    if condition(item, value) { return value }
+    if !condition(item, value) { return value }
 
     return exchange(&item, with: value)
 }
