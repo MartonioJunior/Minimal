@@ -1,11 +1,9 @@
 //
 //  Errors.swift
-//  Core
+//  Minimal
 //
 //  Created by Martônio Júnior on 25/07/2025.
 //
-
-import Overture
 
 // MARK: Throwing
 public func throwing<each A, B, E: Error>(
