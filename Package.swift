@@ -1,18 +1,20 @@
-// swift-tools-version: 6.2
+// swift-tools-version: 6.3
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
 // MARK: - Utilities
 public enum UpcomingFeatures: String, CaseIterable {
+    case differentiableProgramming
     case existentialAny
+    case forwardModeDifferentiation
     case fullTypedThrows
     case internalImportsByDefault
+    case keyPathWithMethodMembers
     case memberImportVisibility
-    case nonescapableTypes
     case nonisolatedNonsendingByDefault
     case inferIsolatedConformances
-    case valueGenerics
+    case strictMemorySafety
 
     var asSetting: SwiftSetting { .enableUpcomingFeature(rawValue.prefix(1).uppercased() + rawValue.dropFirst()) }
 }
