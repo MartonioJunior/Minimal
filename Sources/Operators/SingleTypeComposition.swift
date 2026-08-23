@@ -13,34 +13,35 @@ precedencegroup SingleTypeComposition {
     higherThan: ForwardApplication
 }
 
-// MARK: Operators
-infix operator <>: SingleTypeComposition // Concat
-
-// MARK: Methods (<>)
-public func <> <A>(
-    lhsFunction: @escaping (inout A) -> Void,
-    rhsFunction: @escaping (inout A) -> Void
-) -> (inout A) -> Void {
-    concat(lhsFunction, rhsFunction)
+// MARK: Concat (<>)
+infix operator <>: SingleTypeComposition
+/// Composes multiple mutating functions into one.
+/// - Parameters:
+///   - lhs: A mutating function.
+///   - rhs: Another mutating function.
+///
+/// - Returns: Mutating function that combones both functions.
+public func <> <A, E: Error>(
+    lhs: @escaping (inout A) throws(E) -> Void,
+    rhs: @escaping (inout A) throws(E) -> Void
+) -> (inout A) throws(E) -> Void {
+    {
+        try lhs(&$0)
+        try rhs(&$0)
+    }
 }
-
-public func <> <A>(
-    lhsFunction: @escaping (inout A) throws -> Void,
-    rhsFunction: @escaping (inout A) throws -> Void
-) -> (inout A) throws -> Void {
-    concat(lhsFunction, rhsFunction)
-}
-
-public func <> <A: AnyObject>(
-    lhsFunction: @escaping (A) -> Void,
-    rhsFunction: @escaping (A) -> Void
-) -> (A) -> Void {
-    concat(lhsFunction, rhsFunction)
-}
-
-public func <> <A: AnyObject>(
-    lhsFunction: @escaping (A) throws -> Void,
-    rhsFunction: @escaping (A) throws -> Void
-) -> (A) throws -> Void {
-    concat(lhsFunction, rhsFunction)
+/// Composes multiple mutating functions into one.
+/// - Parameters:
+///   - lhs: A mutating function.
+///   - rhs: Another mutating function.
+///
+/// - Returns: Mutating function that combones both functions.
+public func <> <A: AnyObject, E: Error>(
+    lhs: @escaping (A) throws(E) -> Void,
+    rhs: @escaping (A) throws(E) -> Void
+) -> (A) throws(E) -> Void {
+    {
+        try lhs($0)
+        try rhs($0)
+    }
 }

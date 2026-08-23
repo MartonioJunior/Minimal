@@ -5,8 +5,8 @@
 //  Created by Martônio Júnior on 24/01/24.
 //
 
-import Foundation
-import Overture
+import Either
+import Functional
 
 // MARK: Precedence Group
 precedencegroup ForwardApplication {
@@ -14,77 +14,172 @@ precedencegroup ForwardApplication {
     higherThan: AssignmentPrecedence
 }
 
-// MARK: Operators
-infix operator |>: ForwardApplication // Pipe-Forward
-infix operator <|: ForwardApplication // Pipe-Backward
-infix operator &>: ForwardApplication // Pipe-Forward (Mutable)
-infix operator <&: ForwardApplication // Pipe-Backward (Mutable)
-infix operator <->: ForwardApplication // Swap
-// infix operator ~>: ForwardApplication // Alternative Return / Either (Deprecated on Swift 2.0, but still declared)
-// infix operator <~: ForwardApplication
-// TODO: Add methods for <|, <& & <~ operators
-
-// MARK: Methods (|>)
-/// closure(value())
-public func |> <A, B>(
+// MARK: Forward Pipe (|>)
+infix operator |>: ForwardApplication
+/// Applies a value to a given closure.
+/// - Parameters:
+///   - lhs: Value to apply.
+///   - rhs: Closure to execute.
+///
+/// - Throws: `E` when an error happens while running `rhs`.
+/// - Returns: Output of the `rhs` function.
+public func |> <A, B, E: Error>(
     lhs: A,
-    rhs: @escaping (A) throws -> B
-) rethrows -> B {
-    try with(lhs, rhs)
+    rhs: @escaping (A) throws(E) -> B
+) throws(E) -> B {
+    try rhs(lhs)
 }
 
-// MARK: Methods (&>)
-/// Configures a variable based on it's values
-public func &> <A>(
+// MARK: Purify (<|)
+infix operator <|: ForwardApplication
+postfix operator <|
+/// Purifies a mutating function.
+/// - Parameter lhs: Mutating function.
+/// - Returns: Pure function.
+public postfix func <| <A, E: Error>(
+    lhs: @escaping (inout A) throws(E) -> Void
+) -> (A) throws(E) -> A {
+    purify(lhs)
+}
+/// Purifies a mutating function.
+/// - Parameter lhs: Mutating function.
+/// - Returns: Pure function.
+public postfix func <| <A, B, E: Error>(
+    lhs: @escaping (inout A) throws(E) -> B
+) -> (A) throws(E) -> (A, B) {
+    purify(lhs)
+}
+
+/// Applies a mutating function to a pure value.
+/// - Parameters:
+///   - lhs: Mutating function.
+///   - rhs: Pure value.
+///
+/// - Throws: `E` when the mutating function throws.
+/// - Returns: Value after the mutation.
+public func <| <A, E: Error>(
+    lhs: @escaping (inout A) throws(E) -> Void,
+    rhs: A
+) throws(E) -> A {
+    try purify(lhs)(rhs)
+}
+/// Applies a mutating function to a pure value.
+/// - Parameters:
+///   - lhs: Mutating function.
+///   - rhs: Pure value.
+///
+/// - Throws: `E` when the mutating function throws.
+/// - Returns: Value after the mutation and it's function outputs.
+public func <| <A, B, E: Error>(
+    lhs: @escaping (inout A) throws(E) -> B,
+    rhs: A
+) throws(E) -> (A, B) {
+    try purify(lhs)(rhs)
+}
+
+// MARK: Forward Mutation (&>)
+infix operator &>: ForwardApplication
+/// Mutates a value type with a closure.
+/// - Parameters:
+///   - lhs: Value to be mutated.
+///   - rhs: Mutation closure.
+///
+/// - Throws: `E` when an error happens while running `rhs`.
+/// - Returns: Mutated value.
+@_disfavoredOverload
+public func &> <A, E: Error>(
     lhs: A,
-    rhs: @escaping (inout A) throws -> Void
-) rethrows -> A {
+    rhs: @escaping (inout A) throws(E) -> Void
+) throws(E) -> A {
     var lhs = lhs
     try rhs(&lhs)
     return lhs
 }
-
+/// Mutates a reference type with a closure.
+/// - Parameters:
+///   - lhs: Reference to be mutated.
+///   - rhs: Mutation closure.
+///
+/// - Throws: `E` when an error happens while running `rhs`.
+/// - Returns: Mutated reference.
 @discardableResult
-public func &> <A>(
-    lhs: inout A,
-    rhs: @escaping (inout A) throws -> Void
-) rethrows -> A {
-    try rhs(&lhs)
+public func &> <A: AnyObject, E: Error>(
+    lhs: A,
+    rhs: @escaping (A) throws(E) -> Void
+) throws(E) -> A {
+    try rhs(lhs)
     return lhs
 }
 
-// MARK: Methods (<->)
-public func <-> <A>(
+// MARK: Mutating (<&)
+infix operator <&: ForwardApplication
+postfix operator <&
+/// Transforms a pure function into a mutating one.
+/// - Parameter lhs: Pure function.
+/// - Returns: Mutating function.
+public postfix func <& <A, E: Error>(lhs: @escaping (A) throws(E) -> A) -> (inout A) throws(E) -> Void {
+    mutating(lhs)
+}
+/// Transforms a pure function into a mutating one.
+/// - Parameter lhs: Pure function.
+/// - Returns: Mutating function.
+public postfix func <& <A, B, E: Error>(
+    lhs: @escaping (A) throws(E) -> (A, B)
+) -> (inout A) throws(E) -> B {
+    mutating(lhs)
+}
+/// Mutates a value with a pure transformation.
+/// - Parameters:
+///   - lhs: Pure function.
+///   - rhs: Mutation reference.
+///
+/// - Throws: `E` when the pure function throws.
+public func <& <A, E: Error>(
+    lhs: @escaping (A) throws(E) -> A,
+    rhs: inout A
+) throws(E) {
+    try mutating(lhs)(&rhs)
+}
+/// Mutates a value with a pure transformation.
+/// - Parameters:
+///   - lhs: Pure function.
+///   - rhs: Mutation reference.
+///
+/// - Throws: `E` when the pure function throws.
+/// - Returns: Extra outputs of the pure function
+public func <& <A, B, E: Error>(
+    lhs: @escaping (A) throws(E) -> (A, B),
+    rhs: inout A
+) throws(E) -> B {
+    try mutating(lhs)(&rhs)
+}
+
+// MARK: Swap (<&>)
+infix operator <&>: ForwardApplication
+/// Swaps two variables around.
+/// - Parameters:
+///   - lhs: A variable.
+///   - rhs: Another variable.
+///
+public func <&> <A>(
     _ lhs: inout A,
     _ rhs: inout A
 ) {
     swap(&lhs, &rhs)
 }
 
-// MARK: Methods (~>)
-public func ~> <A, B: Error, C: Error>(
-    expression: @autoclosure () throws(B) -> A,
-    errorTransform: (B) -> C
-) rethrows -> A {
-    do {
-        return try expression()
-    } catch {
-        throw errorTransform(error)
+// MARK: Optionalize (<?)
+postfix operator <?
+/// Transforms a function to work with optionals
+/// - Parameter lhs: Function with non-optional inputs and outputs.
+/// - Returns: Function with optional inputs and outputs.
+@available(macOS 10.15, *)
+public postfix func <? <A, B, E: Error>(
+    lhs: @escaping (A) throws(E) -> B
+) -> (A?) throws(E) -> B? {
+    { (a: A?) in
+        guard let a else { return nil }
+
+        return try lhs(a)
     }
-}
-
-public func ~> <A, B>(
-    value: @autoclosure () throws -> (A?, B),
-    map: (B) throws -> A
-) rethrows -> A {
-    let (left, right) = try value()
-    return if let left { left } else { try map(right) }
-}
-
-public func ~> <A, B>(
-    value: @autoclosure () throws -> (A, B?),
-    map: (A) throws -> B
-) rethrows -> B {
-    let (left, right) = try value()
-    return if let right { right } else { try map(left) }
 }
