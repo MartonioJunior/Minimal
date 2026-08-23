@@ -57,6 +57,10 @@ let dependencies = [
 // MARK: - Targets
 var targets: [Target] = [
     .target(
+        name: "Bidirectional",
+        swiftSettings: .upcomingFeatures
+    ),
+    .target(
         name: "Either",
         swiftSettings: .upcomingFeatures
     ),
