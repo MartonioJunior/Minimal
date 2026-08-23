@@ -5,4 +5,6 @@
 //  Created by Martônio Júnior on 21/01/25.
 //
 
-public typealias Comparer<T> = Closure<(T, T), Bool, Never>
+public import Foundation
+/// Short-hand alias for a closure that compares two values.
+public typealias Comparer<T> = Closure<(T, T), ComparisonResult, Never>
