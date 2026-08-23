@@ -11,8 +11,8 @@ public extension Closure where Output == Int {
         _ elements: S,
         check: @escaping (I, S.Element) -> Bool
     ) -> Self where Self == AnyClosure<I, Int, E> {
-        .composing(elements, evaluate: check) {
-            $0.count(where: $1)
+        .init { input in
+            elements.count { check(input, $0) }
         }
     }
 }
@@ -22,8 +22,8 @@ public extension SyncClosure where Output == Int {
         _ elements: S,
         check: @escaping (I, S.Element) -> Bool
     ) -> Self where Self == AnySyncClosure<I, Int, E> {
-        .composing(elements, evaluate: check) {
-            $0.count(where: $1)
+        .init { input in
+            elements.count { check(input, $0) }
         }
     }
 }

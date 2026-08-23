@@ -20,8 +20,8 @@ public extension Closure where Output == Bool {
         _ elements: S,
         check: @escaping (I, S.Element) -> Bool
     ) -> Self where Self == AnyClosure<I, Bool, E> {
-        .composing(elements, evaluate: check) {
-            $0.contains(where: $1)
+        .init { input in
+            elements.allSatisfy { check(input, $0) }
         }
     }
 
@@ -29,8 +29,8 @@ public extension Closure where Output == Bool {
         _ elements: S,
         check: @escaping (Input, S.Element) -> Bool
     ) -> Self where Self == AnyClosure<I, Bool, E> {
-        .composing(elements, evaluate: check) {
-            $0.allSatisfy($1)
+        .init { input in
+            elements.allSatisfy { check(input, $0) }
         }
     }
 
@@ -90,8 +90,8 @@ public extension SyncClosure where Output == Bool {
         _ elements: S,
         check: @escaping (I, S.Element) -> Bool
     ) -> Self where Self == AnySyncClosure<I, Bool, E> {
-        .composing(elements, evaluate: check) {
-            $0.contains(where: $1)
+        .init { input in
+            elements.contains { check(input, $0) }
         }
     }
 
@@ -99,8 +99,8 @@ public extension SyncClosure where Output == Bool {
         _ elements: S,
         check: @escaping (Input, S.Element) -> Bool
     ) -> Self where Self == AnySyncClosure<I, Bool, E> {
-        .composing(elements, evaluate: check) {
-            $0.allSatisfy($1)
+        .init { input in
+            elements.allSatisfy { check(input, $0) }
         }
     }
 
