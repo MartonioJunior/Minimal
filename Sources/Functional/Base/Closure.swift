@@ -8,13 +8,7 @@
 /// Describes a closure that is run asynchronously.
 /// 
 /// In Algebraic terms, it describes the exponential of (Output+Error)^Input
-public protocol Closure<Input, Output, Error> {
-    /// Type representing the input parameters.
-    associatedtype Input
-    /// Type representing the output of the function.
-    associatedtype Output
-    /// Type representing all possible errors.
-    associatedtype Error: Swift.Error
+public protocol Closure<Input, Output, Error>: Functional {
     /// Executes the closure.
     /// - Parameter input: Input of the closure.
     /// - Throws: Error for the closure.
