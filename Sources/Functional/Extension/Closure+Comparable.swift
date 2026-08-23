@@ -111,7 +111,7 @@ public func max<Input, Output: Comparable, Error>(
     lhs: some SyncClosure<Input, Output, Error>,
     _ elements: any SyncClosure<Input, Output, Error>...
 ) -> AnySyncClosure<Input, Output, Error> {
-    elements.reduce(lhs.erased()) { $0 || $1.erased() }
+    elements.reduce(AnySyncClosure(lhs)) { $0 || AnySyncClosure($1) }
 }
 
 @_disfavoredOverload
@@ -119,7 +119,7 @@ public func max<Input, Output: Comparable, Error>(
     lhs: some SyncClosure<Input, Output, Error>,
     _ elements: AnySyncClosure<Input, Output, Error>...
 ) -> AnySyncClosure<Input, Output, Error> {
-    elements.reduce(lhs.erased()) { $0 || $1 }
+    elements.reduce(AnySyncClosure(lhs)) { $0 || $1 }
 }
 
 @available(macOS 13.0.0, *)
@@ -127,7 +127,7 @@ public func maxAsync<Input, Output: Comparable, Error>(
     lhs: some Closure<Input, Output, Error>,
     _ elements: any Closure<Input, Output, Error>...
 ) -> AnyClosure<Input, Output, Error> {
-    elements.reduce(lhs.erasedAsync()) { $0 || $1.erasedAsync() }
+    elements.reduce(AnyClosure(lhs)) { $0 || AnyClosure($1) }
 }
 
 @_disfavoredOverload
@@ -135,7 +135,7 @@ public func maxAsync<Input, Output: Comparable, Error>(
     lhs: some Closure<Input, Output, Error>,
     _ elements: AnyClosure<Input, Output, Error>...
 ) -> AnyClosure<Input, Output, Error> {
-    elements.reduce(lhs.erasedAsync()) { $0 || $1 }
+    elements.reduce(AnyClosure(lhs)) { $0 || $1 }
 }
 
 @available(macOS 13.0.0, *)
@@ -143,7 +143,7 @@ public func min<Input, Output: Comparable, Error>(
     lhs: some SyncClosure<Input, Output, Error>,
     _ elements: any SyncClosure<Input, Output, Error>...
 ) -> AnySyncClosure<Input, Output, Error> {
-    elements.reduce(lhs.erased()) { $0 && $1.erased() }
+    elements.reduce(AnySyncClosure(lhs)) { $0 && AnySyncClosure($1) }
 }
 
 @_disfavoredOverload
@@ -151,7 +151,7 @@ public func min<Input, Output: Comparable, Error>(
     lhs: some SyncClosure<Input, Output, Error>,
     _ elements: AnySyncClosure<Input, Output, Error>...
 ) -> AnySyncClosure<Input, Output, Error> {
-    elements.reduce(lhs.erased()) { $0 && $1 }
+    elements.reduce(AnySyncClosure(lhs)) { $0 && $1 }
 }
 
 @available(macOS 13.0.0, *)
@@ -159,12 +159,12 @@ public func minAsync<Input, Output: Comparable, Error>(
     lhs: some Closure<Input, Output, Error>,
     _ elements: any Closure<Input, Output, Error>...
 ) -> AnyClosure<Input, Output, Error> {
-    elements.reduce(lhs.erasedAsync()) { $0 && $1.erasedAsync() }
+    elements.reduce(AnyClosure(lhs)) { $0 && AnyClosure($1) }
 }
 
 public func minAsync<Input, Output: Comparable, Error>(
     lhs: some Closure<Input, Output, Error>,
     _ elements: AnyClosure<Input, Output, Error>...
 ) -> AnyClosure<Input, Output, Error> {
-    elements.reduce(lhs.erasedAsync()) { $0 && $1 }
+    elements.reduce(AnyClosure(lhs)) { $0 && $1 }
 }
