@@ -9,11 +9,11 @@
 public struct Pair<First, Second> {
     // MARK: Variables
     /// First element.
-    var first: First
+    public var first: First
     /// Second element.
-    var second: Second
+    public var second: Second
     /// Pair with the order of elements swapped.
-    var swapped: Pair<Second, First> { .init(second, first) }
+    public var swapped: Pair<Second, First> { .init(second, first) }
     // MARK: Initializers
     /// Creates a new pair.
     /// - Parameters:
