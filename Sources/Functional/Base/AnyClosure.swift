@@ -5,7 +5,6 @@
 //  Created by Martônio Júnior on 20/11/23.
 //
 
-import Foundation
 /// Short-hand alias for an erased closure.
 public typealias ErasedClosure<C: Closure> = AnyClosure<C.Input, C.Output, C.Error>
 /// Type-erased closure.

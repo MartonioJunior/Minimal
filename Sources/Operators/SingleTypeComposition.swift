@@ -5,7 +5,6 @@
 //  Created by Martônio Júnior on 24/01/24.
 //
 
-import Foundation
 import Overture
 
 // MARK: Precedence Group

@@ -5,7 +5,6 @@
 //  Created by Martônio Júnior on 07/01/2026.
 //
 
-import Foundation
 /// Short-hand alias for an erased sendable closure.
 public typealias ErasedSendableClosure<C: Closure> = AnySendableClosure<C.Input, C.Output, C.Error>
 /// Type-erased Sendable closure.

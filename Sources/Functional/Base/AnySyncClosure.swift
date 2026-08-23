@@ -5,7 +5,6 @@
 //  Created by Martônio Júnior on 31/12/2025.
 //
 
-import Foundation
 /// Short-hand alias for an erased sync closure.
 public typealias ErasedSyncClosure<C: SyncClosure> = AnySyncClosure<C.Input, C.Output, C.Error>
 /// Type-erased synchronous closure.
