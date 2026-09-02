@@ -70,7 +70,7 @@ public struct Tuple<each Element> {
     /// - Parameter transform: Transformations applied to each element
     /// - Throws: `E` when mapping fails with a value.
     /// - Returns: Tuple with the new values
-    func map<each T, E: Error>(
+    public func map<each T, E: Error>(
         _ transforms: repeat (each Element) throws(E) -> each T
     ) throws(E) -> Tuple<repeat each T> {
         .init(repeat try (each transforms)(each values))
