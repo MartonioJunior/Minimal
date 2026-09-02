@@ -23,7 +23,7 @@ public struct Tuple<each Element> {
     /// Heterogeneous array representing the tuple.
     /// 
     /// Used by the type to perform index-based operations when necessary.
-    var array: [Any] {
+    public var array: [Any] {
         var result = [Any]()
         for element in repeat each values {
             result.append(element)
@@ -31,7 +31,7 @@ public struct Tuple<each Element> {
         return result
     }
     /// Number of elements in the tuple.
-    var count: Int { Int(Builtin.packLength((repeat each Element).self)) }
+    public var count: Int { Int(Builtin.packLength((repeat each Element).self)) }
     /// Subscript that allows direct access to a tuple's elements.
     /// - Parameter keyPath: Key Path to the desired element.
     /// - Returns: Desired element.
