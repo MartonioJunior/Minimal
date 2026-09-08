@@ -27,6 +27,11 @@ public struct AnySyncClosure<Input, Output, E: Error> {
     }
 }
 
+// MARK: Self: Functional
+extension AnySyncClosure: Functional {
+    public typealias Error = E
+}
+
 // MARK: Self: SyncClosure
 extension AnySyncClosure: SyncClosure {
     // swiftlint:disable:next missing_docs

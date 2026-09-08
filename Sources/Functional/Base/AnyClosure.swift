@@ -33,6 +33,11 @@ extension AnyClosure: Closure {
     }
 }
 
+// MARK: Self: Functional
+extension AnyClosure: Functional {
+    public typealias Error = E
+}
+
 // MARK: Closure (EX)
 public extension Closure {
     /// Maps a closure to an async function.

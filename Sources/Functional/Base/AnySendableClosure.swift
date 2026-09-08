@@ -33,6 +33,11 @@ extension AnySendableClosure: Closure {
     }
 }
 
+// MARK: Self: Functional
+extension AnySendableClosure: Functional {
+    public typealias Error = E
+}
+
 // MARK: Closure (EX)
 public extension Closure where Self: Sendable {
     /// Maps a closure to an async function.
