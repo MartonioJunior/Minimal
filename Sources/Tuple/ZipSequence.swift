@@ -84,7 +84,8 @@ public extension Tuple where repeat each Element: Sequence {
     /// - Returns: Array of the resulting values.
     func zipMap<T>(_ transform: (Tuple<repeat (each Element).Element>) -> T) -> [T] {
         var result: [T] = []
-        for element in zipSequence {
+        var iterator = zipSequence.makeIterator()
+        while let element = iterator.next() {
             result.append(transform(element))
         }
         return result
