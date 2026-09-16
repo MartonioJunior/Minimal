@@ -5,7 +5,6 @@
 //  Created by Martônio Júnior on 24/01/24.
 //
 
-import Either
 import Functional
 
 // MARK: Precedence Group
@@ -44,12 +43,11 @@ public postfix func <| <A, E: Error>(
 /// Purifies a mutating function.
 /// - Parameter lhs: Mutating function.
 /// - Returns: Pure function.
-public postfix func <| <A, B, E: Error>(
-    lhs: @escaping (inout A) throws(E) -> B
-) -> (A) throws(E) -> (A, B) {
+public postfix func <| <A, each B, E: Error>(
+    lhs: @escaping (inout A) throws(E) -> (repeat each B)
+) -> (A) throws(E) -> (A, repeat each B) {
     purify(lhs)
 }
-
 /// Applies a mutating function to a pure value.
 /// - Parameters:
 ///   - lhs: Mutating function.
@@ -67,13 +65,14 @@ public func <| <A, E: Error>(
 /// - Parameters:
 ///   - lhs: Mutating function.
 ///   - rhs: Pure value.
-///
+/// - Returns: Pure function.
+/// 
 /// - Throws: `E` when the mutating function throws.
 /// - Returns: Value after the mutation and it's function outputs.
-public func <| <A, B, E: Error>(
-    lhs: @escaping (inout A) throws(E) -> B,
+public func <| <A, each B, E: Error>(
+    lhs: @escaping (inout A) throws(E) -> (repeat each B),
     rhs: A
-) throws(E) -> (A, B) {
+) throws(E) -> (A, repeat each B) {
     try purify(lhs)(rhs)
 }
 
@@ -117,7 +116,9 @@ postfix operator <&
 /// Transforms a pure function into a mutating one.
 /// - Parameter lhs: Pure function.
 /// - Returns: Mutating function.
-public postfix func <& <A, E: Error>(lhs: @escaping (A) throws(E) -> A) -> (inout A) throws(E) -> Void {
+public postfix func <& <A, E: Error>(
+    lhs: @escaping (A) throws(E) -> A
+) -> (inout A) throws(E) -> Void {
     mutating(lhs)
 }
 /// Transforms a pure function into a mutating one.
@@ -173,13 +174,26 @@ postfix operator <?
 /// Transforms a function to work with optionals
 /// - Parameter lhs: Function with non-optional inputs and outputs.
 /// - Returns: Function with optional inputs and outputs.
-@available(macOS 10.15, *)
-public postfix func <? <A, B, E: Error>(
-    lhs: @escaping (A) throws(E) -> B
-) -> (A?) throws(E) -> B? {
-    { (a: A?) in
-        guard let a else { return nil }
+public postfix func <? <each A, B, E: Error>(
+    lhs: @escaping (repeat each A) throws(E) -> B
+) -> (repeat Optional<each A>) throws(E) -> B? {
+    { (args: repeat Optional<each A>) in
+        var elements = [Any]()
 
-        return try lhs(a)
+        for element in repeat each args {
+            guard let element else { return nil }
+
+            elements.append(element)
+        }
+
+        var iterator = elements.makeIterator()
+        guard let t = try? (repeat { t in try cast(iterator.next(), as: t) }((each A).self)) else { return nil }
+        return try? lhs(repeat each t)
+
+        func cast<Value, T>(_ value: Value, as _: T.Type) throws(CancellationError) -> T {
+            guard case let cast as T = value else { throw .init() }
+
+            return cast
+        }
     }
 }

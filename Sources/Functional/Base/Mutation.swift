@@ -100,12 +100,12 @@ public func purify<A, E: Error>(
 /// Purifies a mutating function.
 /// - Parameter f: Mutating function.
 /// - Returns: Pure function.
-public func purify<A, B, E: Error>(
-    _ f: @escaping (inout A) throws(E) -> B
-) -> (A) throws(E) -> (A, B) {
+public func purify<A, each B, E: Error>(
+    _ f: @escaping (inout A) throws(E) -> (repeat each B)
+) -> (A) throws(E) -> (A, repeat each B) {
     {
         var copy = $0
         let result = try f(&copy)
-        return (copy, result)
+        return (copy, repeat each result)
     }
 }
