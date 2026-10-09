@@ -23,18 +23,6 @@ public extension Array where Element == SwiftSetting {
     static var upcomingFeatures: Self { UpcomingFeatures.allCases.map(\.asSetting) }
 }
 
-func dep(local: String) -> Package.Dependency {
-    .package(path: local)
-}
-
-func dep(url: String, _ version: Range<Version>, local: String = "") -> Package.Dependency {
-    if local.isEmpty {
-        .package(url: url, version)
-    } else {
-        dep(local: local)
-    }
-}
-
 func lib(_ name: String, targets: String...) -> Product {
     .library(name: name, targets: targets)
 }
@@ -47,11 +35,20 @@ func targetDep(name: String, package: String) -> Target.Dependency {
     .product(name: name, package: package)
 }
 
+// MARK: - Traits
+var traits: Set<Trait> = [
+    .trait(name: "ParameterPackOperations", description: "Enables the use of parameter-pack based operations using tuples.")
+]
+
+traits.insert(
+    .default(enabledTraits: Set())
+)
+
 // MARK: - Dependencies
 let overture = targetDep(name: "Overture", package: "swift-overture")
 
-let dependencies = [
-    dep(url: "https://github.com/pointfreeco/swift-overture", .upToNextMajor(from: "0.5.0"))
+let dependencies: [Package.Dependency] = [
+    .package(url: "https://github.com/pointfreeco/swift-overture", .upToNextMajor(from: "0.5.0"))
 ]
 
 // MARK: - Targets
@@ -113,6 +110,7 @@ let products: [Product] = [
 let package = Package(
     name: "Minimal",
     products: products,
+    traits: traits,
     dependencies: dependencies,
     targets: targets + testTargets,
     swiftLanguageModes: [.v6]

@@ -5,6 +5,7 @@
 //  Created by Martônio Júnior on 20/07/2026.
 //
 
+#if ParameterPackOperations
 /// Data structure representing a zip of multiple sequences of different types.
 @available(macOS 14.0.0, *)
 public struct ZipSequence<each S: Sequence> {
@@ -107,3 +108,4 @@ public func zipSequence<each S: Sequence, T>(
         transform(repeat each $0.values)
     }
 }
+#endif

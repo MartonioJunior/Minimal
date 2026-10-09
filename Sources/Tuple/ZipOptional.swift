@@ -5,6 +5,7 @@
 //  Created by Martônio Júnior on 20/07/2026.
 //
 
+#if ParameterPackOperations
 public protocol ZipOptional {
     associatedtype Wrapped
 
@@ -62,3 +63,4 @@ public extension Tuple {
 public func zipOptional<each T: ZipOptional>(_ optionals: repeat each T) -> (repeat (each T).Wrapped)? {
     Tuple(repeat each optionals).zipOptional?.values
 }
+#endif
