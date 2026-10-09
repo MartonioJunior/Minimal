@@ -69,7 +69,7 @@ public extension SyncClosure where Output == Void {
     }
 }
 
-// MARK: Sequence
+// MARK: Sequence (EX)
 public extension Sequence where Element: Closure, Element.Input == Void, Element.Output == Void {
     /// Attempts to run all methods asynchronously.
     /// - Throws: Error if any element run fails.
